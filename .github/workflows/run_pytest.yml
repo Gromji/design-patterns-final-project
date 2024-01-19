@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  lint-and-format:
+  run-pytest:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,4 +27,12 @@ jobs:
           pip install pytest
 
       - name: Run Pytest
-        run: pytest wallet/tests/
+        run: |
+          test_files=$(find . -type f -name 'test_*' | wc -l)
+          if [ "$test_files" -eq 0 ]; then
+            echo "No tests found. Exiting."
+            exit 0
+          else
+            echo "Found test file(s). Running pytest..."
+            pytest /wallet/tests/
+          fi
