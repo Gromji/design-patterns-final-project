@@ -27,4 +27,4 @@ jobs:
           pip install pytest
 
       - name: Run Pytest
-        run: pytest --cov=wallet --cov-report=term-missing wallet/tests/
+        run: pytest wallet/tests/
