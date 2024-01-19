@@ -28,7 +28,7 @@ jobs:
 
       - name: Run Pytest
         run: |
-          test_files=$(find . -type f -name 'test_*' | wc -l)
+          test_files=$(find wallet/tests/ -type f -name 'test_*' | wc -l)
           if [ "$test_files" -eq 0 ]; then
             echo "No tests found. Exiting."
             exit 0
