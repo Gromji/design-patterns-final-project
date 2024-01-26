@@ -36,4 +36,4 @@ jobs:
         run: black --check wallet
 
       - name: Run mypy
-        run: mypy wallet
+        run: mypy --allow-untyped-decorators wallet

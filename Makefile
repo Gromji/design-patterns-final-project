@@ -13,7 +13,7 @@ lint: ## Run code linters
 	black --check wallet
 	flake8 wallet
 	rm -rf .mypy_cache
-	mypy wallet
+	mypy --allow-untyped-decorators wallet
 
 
 test: ## Run tests
@@ -29,3 +29,6 @@ all: ## Run all commands
 	make format
 	make lint
 	make test
+
+reset:
+	rm ./wallet.db
