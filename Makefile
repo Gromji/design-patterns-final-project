@@ -29,3 +29,6 @@ all: ## Run all commands
 	make format
 	make lint
 	make test
+
+reset:
+	rm ./wallet.db
