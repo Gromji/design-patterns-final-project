@@ -8,7 +8,7 @@ from uuid import UUID, uuid4
 @dataclass
 class Wallet:
     address: str
-    amount: float
+    amount: int
     user_id: UUID
 
 
@@ -19,7 +19,7 @@ class IWalletBuilder(Protocol):
     def address(self, address: str) -> IWalletBuilder:
         pass
 
-    def amount(self, amount: float) -> IWalletBuilder:
+    def amount(self, amount: int) -> IWalletBuilder:
         pass
 
     def user_id(self, user_id: UUID) -> IWalletBuilder:
@@ -33,14 +33,14 @@ class IWallet(IWalletBuilder):
     wallet: Wallet
 
     def builder(self) -> IWalletBuilder:
-        self.wallet = Wallet(address="", amount=0.0, user_id=uuid4())
+        self.wallet = Wallet(address="", amount=0, user_id=uuid4())
         return self
 
     def address(self, address: str) -> IWalletBuilder:
         self.wallet.address = address
         return self
 
-    def amount(self, amount: float) -> IWalletBuilder:
+    def amount(self, amount: int) -> IWalletBuilder:
         self.wallet.amount = amount
         return self
 
