@@ -6,13 +6,22 @@ from wallet.core.entity.wallet import Wallet
 from wallet.core.error.errors import DoesNotExistError, AlreadyExistsError
 from wallet.infra.repository.repository_interface import IWalletRepository
 from wallet.infra.repository.sqlite.connection_manager import ConnectionManager
+from wallet.infra.repository.sqlite.user_repository import USER_TABLE_NAME
 
 WALLET_TABLE_NAME = "wallets"
 
 
 class WalletRepository(IWalletRepository):
     def __init__(self) -> None:
-        # TODO: create table script could go here
+        with ConnectionManager.get_connection() as conn:
+            with closing(conn.cursor()) as cursor:
+                cursor.execute(
+                    f"""CREATE TABLE IF NOT EXISTS {WALLET_TABLE_NAME} (
+                        Address TEXT PRIMARY KEY,
+                        Amount INTEGER,
+                        User_ID TEXT,
+                        FOREIGN KEY (User_ID) REFERENCES {USER_TABLE_NAME}(ID)
+                );""")
         pass
 
     def get_wallet(self, address: str) -> Wallet:
@@ -66,5 +75,7 @@ class WalletRepository(IWalletRepository):
         return self.get_wallet(address)
 
     def tear_down(self) -> None:
-        # TODO: drop table script could go here
+        with ConnectionManager.get_connection() as conn:
+            with closing(conn.cursor()) as cursor:
+                cursor.execute(f"DROP TABLE {WALLET_TABLE_NAME}")
         pass
