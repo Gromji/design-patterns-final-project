@@ -36,4 +36,6 @@ jobs:
         run: black --check wallet
 
       - name: Run mypy
-        run: mypy --config-file ./setup.cfg wallet
+        run: |
+          mypy --version
+          mypy --config-file ./setup.cfg wallet
