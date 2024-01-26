@@ -45,7 +45,6 @@ class UserRepository(IUserRepository):
                     (str(user.user_id), user.email, user.api_key),
                 )
             except Exception as e:
-                print("ERRORE", e)
                 raise AlreadyExistsError(
                     f"User with id {user.user_id} already exists"
                 ) from e
