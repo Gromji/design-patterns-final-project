@@ -1,13 +1,13 @@
 CREATE TABLE Users (
-    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    ID TEXT PRIMARY KEY,
     Email TEXT UNIQUE,
     API_key TEXT UNIQUE
 );
 
 CREATE TABLE Wallets (
     Address TEXT PRIMARY KEY,
-    Amount REAL,
-    User_ID INTEGER,
+    Amount INTEGER,
+    User_ID TEXT,
     FOREIGN KEY (User_ID) REFERENCES Users(ID)
 );
 
@@ -15,8 +15,8 @@ CREATE TABLE Transactions (
     UUID TEXT PRIMARY KEY,
     From_Address TEXT,
     To_Address TEXT,
-    Amount REAL,
-    Fee REAL,
+    Amount INTEGER,
+    Fee INTEGER,
     FOREIGN KEY (From_Address) REFERENCES Wallets(Address),
     FOREIGN KEY (To_Address) REFERENCES Wallets(Address)
 );
