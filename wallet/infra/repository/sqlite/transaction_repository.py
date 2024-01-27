@@ -3,15 +3,17 @@ from typing import List
 from uuid import UUID
 
 from wallet.core.entity.transaction import Transaction
+from wallet.core.entity.wallet import Wallet
 from wallet.core.error.errors import DoesNotExistError, AlreadyExistsError
 from wallet.infra.repository.repository_interface import ITransactionRepository
 from wallet.infra.repository.sqlite.connection_manager import ConnectionManager
+from wallet.infra.repository.sqlite.wallet_repository import WALLET_TABLE_NAME
 
 TRANSACTION_TABLE_NAME = "transactions"
 
 
 class TransactionRepository(ITransactionRepository):
-    def __init__(self, isolated: bool = False) -> None:
+    def __init__(self) -> None:
         with ConnectionManager.get_connection() as conn:
             with closing(conn.cursor()) as cursor:
                 cursor.execute(
@@ -21,9 +23,8 @@ class TransactionRepository(ITransactionRepository):
                         To_Address TEXT,
                         Amount INTEGER,
                         Fee INTEGER,
-                        {'''FOREIGN KEY (From_Address) REFERENCES Wallets(Address),
-                        FOREIGN KEY (To_Address) REFERENCES Wallets(Address)'''
-                    if not isolated else ''}
+                        FOREIGN KEY (From_Address) REFERENCES {WALLET_TABLE_NAME}(Address),
+                        FOREIGN KEY (To_Address) REFERENCES {WALLET_TABLE_NAME}(Address)
                     );"""
                 )
 
@@ -67,7 +68,7 @@ class TransactionRepository(ITransactionRepository):
                 ) from e
             return transaction
 
-    def filter_transactions(self, wallet: "Wallet") -> List[Transaction]:
+    def filter_transactions(self, wallet: Wallet) -> List[Transaction]:
         with ConnectionManager.get_connection() as conn:
             with closing(conn.cursor()) as cursor:
                 cursor.execute(

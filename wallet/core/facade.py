@@ -53,7 +53,7 @@ class TransactionService:
         # TODO: probably need to interact with wallet repository as well
         return self.transaction_repository.create_transaction(transaction)
 
-    def filter_transactions(self, wallet: "Wallet") -> List[Transaction]:
+    def filter_transactions(self, wallet: Wallet) -> List[Transaction]:
         return self.transaction_repository.filter_transactions(wallet)
 
     def tear_down(self) -> None:

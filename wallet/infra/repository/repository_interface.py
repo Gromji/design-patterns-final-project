@@ -36,7 +36,7 @@ class ITransactionRepository(Protocol):
     def create_transaction(self, transaction: Transaction) -> Transaction:
         pass
 
-    def filter_transactions(self, wallet: "Wallet") -> List[Transaction]:
+    def filter_transactions(self, wallet: Wallet) -> List[Transaction]:
         pass
 
     def tear_down(self) -> None:

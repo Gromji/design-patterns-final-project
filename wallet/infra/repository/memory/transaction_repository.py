@@ -2,6 +2,7 @@ from typing import List, Dict
 from uuid import UUID
 
 from wallet.core.entity.transaction import Transaction
+from wallet.core.entity.wallet import Wallet
 from wallet.core.error.errors import DoesNotExistError, AlreadyExistsError
 from wallet.infra.repository.repository_interface import ITransactionRepository
 
@@ -26,8 +27,9 @@ class TransactionRepository(ITransactionRepository):
         self.transactions[transaction.id] = transaction
         return transaction
 
-    def filter_transactions(self, wallet: "Wallet") -> List[Transaction]:
-        pass
+    def filter_transactions(self, wallet: Wallet) -> List[Transaction]:
+        return [v for v in self.transactions.values()
+                if wallet.address in (v.from_address, v.to_address)]
 
     def tear_down(self) -> None:
         self.transactions = {}
