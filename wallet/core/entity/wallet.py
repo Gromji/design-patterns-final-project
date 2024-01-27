@@ -29,7 +29,7 @@ class IWalletBuilder(Protocol):
         pass
 
 
-class IWallet(IWalletBuilder):
+class WalletBuilder(IWalletBuilder):
     wallet: Wallet
 
     def builder(self) -> IWalletBuilder:

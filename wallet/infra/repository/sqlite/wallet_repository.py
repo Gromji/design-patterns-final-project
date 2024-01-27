@@ -1,5 +1,6 @@
 from contextlib import closing
 from typing import List
+from uuid import UUID
 
 from wallet.core.entity.user import User
 from wallet.core.entity.wallet import Wallet
@@ -12,17 +13,18 @@ WALLET_TABLE_NAME = "wallets"
 
 
 class WalletRepository(IWalletRepository):
-    def __init__(self) -> None:
+    def __init__(self, isolated: bool = False) -> None:
         with ConnectionManager.get_connection() as conn:
             with closing(conn.cursor()) as cursor:
                 cursor.execute(
                     f"""CREATE TABLE IF NOT EXISTS {WALLET_TABLE_NAME} (
                         Address TEXT PRIMARY KEY,
                         Amount INTEGER,
-                        User_ID TEXT,
-                        FOREIGN KEY (User_ID) REFERENCES {USER_TABLE_NAME}(ID)
-                );""")
-        pass
+                        User_ID TEXT
+                        {f',FOREIGN KEY (User_ID) REFERENCES {USER_TABLE_NAME}(ID)'
+                    if not isolated else ""}
+                    );"""
+                )
 
     def get_wallet(self, address: str) -> Wallet:
         with ConnectionManager.get_connection() as conn:
@@ -33,7 +35,7 @@ class WalletRepository(IWalletRepository):
                 wallet = cursor.fetchone()
                 if wallet is None:
                     raise DoesNotExistError(f"Wallet with address {address} not found")
-                return Wallet(address=wallet[0], amount=wallet[1], user_id=wallet[2])
+                return Wallet(address=wallet[0], amount=wallet[1], user_id=UUID(wallet[2]))
 
     def create_wallet(self, wallet: Wallet) -> Wallet:
         with ConnectionManager.get_connection() as conn:
@@ -53,14 +55,14 @@ class WalletRepository(IWalletRepository):
         with ConnectionManager.get_connection() as conn:
             with closing(conn.cursor()) as cursor:
                 cursor.execute(
-                    f"SELECT * FROM {WALLET_TABLE_NAME} WHERE user_id = ?", (user.user_id,)
+                    f"SELECT * FROM {WALLET_TABLE_NAME} WHERE user_id = ?", (str(user.user_id),)
                 )
                 wallets = cursor.fetchall()
                 # TODO: decide whether or not to throw an exception here(probably not?)
                 if not wallets:
                     raise DoesNotExistError(f"No wallets found for user with id {user.user_id}")
 
-                return [Wallet(address=wallet[0], amount=wallet[1], user_id=wallet[2])
+                return [Wallet(address=wallet[0], amount=wallet[1], user_id=UUID(wallet[2]))
                         for wallet in wallets]
 
     def update_amount(self, address: str, amount: int) -> Wallet:
