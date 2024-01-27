@@ -80,4 +80,3 @@ class WalletRepository(IWalletRepository):
         with ConnectionManager.get_connection() as conn:
             with closing(conn.cursor()) as cursor:
                 cursor.execute(f"DROP TABLE {WALLET_TABLE_NAME}")
-        pass
