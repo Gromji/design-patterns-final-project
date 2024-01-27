@@ -26,14 +26,15 @@ class WalletRepository(IWalletRepository):
         return wallet
 
     def get_user_wallets(self, user: User) -> List[Wallet]:
-        res = [self.wallets[a] for a in self.wallets
-               if self.wallets[a].user_id == user.user_id]
-        return res
+        return [self.wallets[a] for a in self.wallets
+                if self.wallets[a].user_id == user.user_id]
 
     def update_amount(self, address: str, amount: int) -> Wallet:
-        self.get_wallet(address)
-        self.wallets[address].amount = amount
-        return self.get_wallet(address)
+        try:
+            self.wallets[address].amount = amount
+            return self.get_wallet(address)
+        except KeyError:
+            raise DoesNotExistError(f"Wallet with address {address} does not exist")
 
     def tear_down(self) -> None:
         self.wallets = {}

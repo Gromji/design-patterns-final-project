@@ -1,7 +1,7 @@
 import pytest
 
 from wallet.core.entity.user import UserBuilder
-from wallet.core.entity.wallet import Wallet, WalletBuilder
+from wallet.core.entity.wallet import WalletBuilder
 from wallet.core.error.errors import DoesNotExistError, AlreadyExistsError
 from wallet.core.facade import WalletService
 from wallet.infra.repository.memory.wallet_repository import (
@@ -47,6 +47,14 @@ def test_not_found_wallet(service_name: str, request: pytest.FixtureRequest) -> 
     service = request.getfixturevalue(service_name)
     with pytest.raises(DoesNotExistError):
         service.get_wallet("address_1")
+    service.tear_down()
+
+
+@pytest.mark.parametrize("service_name", ["service_in_mem_dict", "service_in_mem_sqlite"])
+def test_not_found_wallet_on_update(service_name: str, request: pytest.FixtureRequest) -> None:
+    service = request.getfixturevalue(service_name)
+    with pytest.raises(DoesNotExistError):
+        service.update_amount("address_1", 100)
     service.tear_down()
 
 

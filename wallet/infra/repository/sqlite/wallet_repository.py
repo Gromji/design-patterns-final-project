@@ -63,13 +63,13 @@ class WalletRepository(IWalletRepository):
                         for wallet in wallets]
 
     def update_amount(self, address: str, amount: int) -> Wallet:
-        self.get_wallet(address)  # error checking
-
         with ConnectionManager.get_connection() as conn:
             with closing(conn.cursor()) as cursor:
                 cursor.execute(
                     f"UPDATE {WALLET_TABLE_NAME} SET amount = ? WHERE address = ?", (amount, address,)
                 )
+                if cursor.rowcount == 0:
+                    raise DoesNotExistError(f"Wallet with address {address} does not exist")
 
         return self.get_wallet(address)
 
