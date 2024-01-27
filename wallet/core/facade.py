@@ -3,10 +3,15 @@ from uuid import UUID
 
 from wallet.core.entity.transaction import Transaction
 from wallet.core.entity.user import User
-from wallet.infra.repository.repository_interface import IUserRepository, ITransactionRepository
+from wallet.core.entity.wallet import Wallet
+from wallet.infra.repository.repository_interface import (
+    IUserRepository,
+    IWalletRepository,
+    ITransactionRepository
+)
 
 
-class WalletService:
+class UserService:
     user_repository: IUserRepository
 
     def __init__(self, user_repository: IUserRepository) -> None:
@@ -53,3 +58,25 @@ class TransactionService:
 
     def tear_down(self) -> None:
         self.transaction_repository.tear_down()
+
+
+class WalletService:
+    wallet_repository: IWalletRepository
+
+    def __init__(self, wallet_repository: IWalletRepository) -> None:
+        self.wallet_repository = wallet_repository
+
+    def create_wallet(self, wallet: Wallet) -> Wallet:
+        return self.wallet_repository.create_wallet(wallet)
+
+    def get_wallet(self, address: str) -> Wallet:
+        return self.wallet_repository.get_wallet(address)
+
+    def get_user_wallets(self, user: User) -> List[Wallet]:
+        return self.wallet_repository.get_user_wallets(user)
+
+    def update_amount(self, address: str, amount: int) -> Wallet:
+        return self.wallet_repository.update_amount(address, amount)
+
+    def tear_down(self) -> None:
+        self.wallet_repository.tear_down()

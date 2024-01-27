@@ -2,7 +2,7 @@ import pytest
 
 from wallet.core.entity.user import UserBuilder
 from wallet.core.error.errors import AlreadyExistsError, DoesNotExistError
-from wallet.core.facade import WalletService
+from wallet.core.facade import UserService
 from wallet.infra.repository.memory.user_repository import (
     UserRepository as InMemoryUserRepository,
 )
@@ -13,14 +13,14 @@ from wallet.infra.repository.sqlite.user_repository import (
 
 
 @pytest.fixture
-def service_in_mem_dict() -> WalletService:
-    return WalletService(InMemoryUserRepository())
+def service_in_mem_dict() -> UserService:
+    return UserService(InMemoryUserRepository())
 
 
 @pytest.fixture
-def service_in_mem_sqlite() -> WalletService:
+def service_in_mem_sqlite() -> UserService:
     ConnectionManager.set_in_mem(True)
-    return WalletService(PostgresUserRepository())
+    return UserService(PostgresUserRepository())
 
 
 @pytest.mark.parametrize(

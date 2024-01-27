@@ -1,8 +1,9 @@
-from typing import Protocol, List
+from typing import List, Protocol
 from uuid import UUID
 
 from wallet.core.entity.transaction import Transaction
 from wallet.core.entity.user import User
+from wallet.core.entity.wallet import Wallet
 
 
 class IUserRepository(Protocol):
@@ -36,6 +37,23 @@ class ITransactionRepository(Protocol):
         pass
 
     def filter_transactions(self, wallet: "Wallet") -> List[Transaction]:
+        pass
+
+    def tear_down(self) -> None:
+        pass
+
+
+class IWalletRepository(Protocol):
+    def get_wallet(self, address: str) -> Wallet:
+        pass
+
+    def create_wallet(self, wallet: Wallet) -> Wallet:
+        pass
+
+    def get_user_wallets(self, user: User) -> List[Wallet]:
+        pass
+
+    def update_amount(self, address: str, amount: int) -> Wallet:
         pass
 
     def tear_down(self) -> None:
