@@ -83,4 +83,3 @@ class TransactionRepository(ITransactionRepository):
         with ConnectionManager.get_connection() as conn:
             with closing(conn.cursor()) as cursor:
                 cursor.execute(f"DROP TABLE {TRANSACTION_TABLE_NAME}")
-
