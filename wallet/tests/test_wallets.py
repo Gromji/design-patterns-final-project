@@ -21,7 +21,8 @@ def service_in_mem_dict() -> WalletService:
 @pytest.fixture
 def service_in_mem_sqlite() -> WalletService:
     ConnectionManager.set_in_mem(True)
-    return WalletService(SqliteWalletRepository(isolated=True))
+    ConnectionManager.set_foreign_keys(False)
+    return WalletService(SqliteWalletRepository())
 
 
 @pytest.mark.parametrize("service_name", ["service_in_mem_dict", "service_in_mem_sqlite"])

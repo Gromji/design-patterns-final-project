@@ -13,16 +13,15 @@ WALLET_TABLE_NAME = "wallets"
 
 
 class WalletRepository(IWalletRepository):
-    def __init__(self, isolated: bool = False) -> None:
+    def __init__(self) -> None:
         with ConnectionManager.get_connection() as conn:
             with closing(conn.cursor()) as cursor:
                 cursor.execute(
                     f"""CREATE TABLE IF NOT EXISTS {WALLET_TABLE_NAME} (
                         Address TEXT PRIMARY KEY,
                         Amount INTEGER,
-                        User_ID TEXT
-                        {f',FOREIGN KEY (User_ID) REFERENCES {USER_TABLE_NAME}(ID)'
-                    if not isolated else ""}
+                        User_ID TEXT,
+                        FOREIGN KEY (User_ID) REFERENCES {USER_TABLE_NAME}(ID)
                     );"""
                 )
 
