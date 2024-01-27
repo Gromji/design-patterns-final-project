@@ -58,9 +58,6 @@ class WalletRepository(IWalletRepository):
                     f"SELECT * FROM {WALLET_TABLE_NAME} WHERE user_id = ?", (str(user.user_id),)
                 )
                 wallets = cursor.fetchall()
-                # TODO: decide whether or not to throw an exception here(probably not?)
-                if not wallets:
-                    raise DoesNotExistError(f"No wallets found for user with id {user.user_id}")
 
                 return [Wallet(address=wallet[0], amount=wallet[1], user_id=UUID(wallet[2]))
                         for wallet in wallets]

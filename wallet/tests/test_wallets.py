@@ -3,7 +3,7 @@ import pytest
 from wallet.core.entity.user import UserBuilder
 from wallet.core.entity.wallet import Wallet, WalletBuilder
 from wallet.core.error.errors import DoesNotExistError, AlreadyExistsError
-from wallet.core.facade import ActualWalletService
+from wallet.core.facade import WalletService
 from wallet.infra.repository.memory.wallet_repository import (
     WalletRepository as InMemoryWalletRepository
 )
@@ -14,14 +14,14 @@ from wallet.infra.repository.sqlite.wallet_repository import (
 
 
 @pytest.fixture
-def service_in_mem_dict() -> ActualWalletService:
-    return ActualWalletService(InMemoryWalletRepository())
+def service_in_mem_dict() -> WalletService:
+    return WalletService(InMemoryWalletRepository())
 
 
 @pytest.fixture
-def service_in_mem_sqlite() -> ActualWalletService:
+def service_in_mem_sqlite() -> WalletService:
     ConnectionManager.set_in_mem(True)
-    return ActualWalletService(SqliteWalletRepository(isolated=True))
+    return WalletService(SqliteWalletRepository(isolated=True))
 
 
 @pytest.mark.parametrize("service_name", ["service_in_mem_dict", "service_in_mem_sqlite"])

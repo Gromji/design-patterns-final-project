@@ -6,7 +6,7 @@ from wallet.core.entity.wallet import Wallet
 from wallet.infra.repository.repository_interface import IUserRepository, IWalletRepository
 
 
-class WalletService:
+class UserService:
     user_repository: IUserRepository
 
     def __init__(self, user_repository: IUserRepository) -> None:
@@ -31,7 +31,7 @@ class WalletService:
         self.user_repository.tear_down()
 
 
-class ActualWalletService:  # TODO: rename class when WalletService renamed
+class WalletService:
     wallet_repository: IWalletRepository
 
     def __init__(self, wallet_repository: IWalletRepository) -> None:

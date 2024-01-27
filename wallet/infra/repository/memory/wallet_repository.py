@@ -28,7 +28,6 @@ class WalletRepository(IWalletRepository):
     def get_user_wallets(self, user: User) -> List[Wallet]:
         res = [self.wallets[a] for a in self.wallets
                if self.wallets[a].user_id == user.user_id]
-        # TODO: decide to throw error on empty or not
         return res
 
     def update_amount(self, address: str, amount: int) -> Wallet:
