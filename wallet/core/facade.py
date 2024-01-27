@@ -1,7 +1,9 @@
+from typing import List
 from uuid import UUID
 
+from wallet.core.entity.transaction import Transaction
 from wallet.core.entity.user import User
-from wallet.infra.repository.repository_interface import IUserRepository
+from wallet.infra.repository.repository_interface import IUserRepository, ITransactionRepository
 
 
 class WalletService:
@@ -27,3 +29,27 @@ class WalletService:
 
     def tear_down(self) -> None:
         self.user_repository.tear_down()
+
+
+class TransactionService:
+    # TODO: probably need wallet repository as well
+    transaction_repository: ITransactionRepository
+
+    def __init__(self, transaction_repository: ITransactionRepository) -> None:
+        self.transaction_repository = transaction_repository
+
+    def get_transaction_by_id(self, transaction_id: UUID) -> Transaction:
+        return self.transaction_repository.get_transaction_by_id(transaction_id)
+
+    def get_all_transactions(self) -> List[Transaction]:
+        return self.transaction_repository.get_all_transactions()
+
+    def create_transaction(self, transaction: Transaction) -> Transaction:
+        # TODO: probably need to interact with wallet repository as well
+        return self.transaction_repository.create_transaction(transaction)
+
+    def filter_transactions(self, wallet: "Wallet") -> List[Transaction]:
+        return self.transaction_repository.filter_transactions(wallet)
+
+    def tear_down(self) -> None:
+        self.transaction_repository.tear_down()
