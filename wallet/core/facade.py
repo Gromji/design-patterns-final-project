@@ -3,7 +3,10 @@ from uuid import UUID
 
 from wallet.core.entity.user import User
 from wallet.core.entity.wallet import Wallet
-from wallet.infra.repository.repository_interface import IUserRepository, IWalletRepository
+from wallet.infra.repository.repository_interface import (
+    IUserRepository,
+    IWalletRepository,
+)
 
 
 class UserService:

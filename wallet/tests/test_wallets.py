@@ -2,14 +2,14 @@ import pytest
 
 from wallet.core.entity.user import UserBuilder
 from wallet.core.entity.wallet import WalletBuilder
-from wallet.core.error.errors import DoesNotExistError, AlreadyExistsError
+from wallet.core.error.errors import AlreadyExistsError, DoesNotExistError
 from wallet.core.facade import WalletService
 from wallet.infra.repository.memory.wallet_repository import (
-    WalletRepository as InMemoryWalletRepository
+    WalletRepository as InMemoryWalletRepository,
 )
 from wallet.infra.repository.sqlite.connection_manager import ConnectionManager
 from wallet.infra.repository.sqlite.wallet_repository import (
-    WalletRepository as SqliteWalletRepository
+    WalletRepository as SqliteWalletRepository,
 )
 
 
@@ -25,7 +25,9 @@ def service_in_mem_sqlite() -> WalletService:
     return WalletService(SqliteWalletRepository())
 
 
-@pytest.mark.parametrize("service_name", ["service_in_mem_dict", "service_in_mem_sqlite"])
+@pytest.mark.parametrize(
+    "service_name", ["service_in_mem_dict", "service_in_mem_sqlite"]
+)
 def test_create_wallet(service_name: str, request: pytest.FixtureRequest) -> None:
     service = request.getfixturevalue(service_name)
     wallet = WalletBuilder().builder().address("address_1").amount(100).build()
@@ -33,7 +35,9 @@ def test_create_wallet(service_name: str, request: pytest.FixtureRequest) -> Non
     service.tear_down()
 
 
-@pytest.mark.parametrize("service_name", ["service_in_mem_dict", "service_in_mem_sqlite"])
+@pytest.mark.parametrize(
+    "service_name", ["service_in_mem_dict", "service_in_mem_sqlite"]
+)
 def test_get_wallet(service_name: str, request: pytest.FixtureRequest) -> None:
     service = request.getfixturevalue(service_name)
     wallet = WalletBuilder().builder().address("address_1").amount(100).build()
@@ -43,7 +47,9 @@ def test_get_wallet(service_name: str, request: pytest.FixtureRequest) -> None:
     service.tear_down()
 
 
-@pytest.mark.parametrize("service_name", ["service_in_mem_dict", "service_in_mem_sqlite"])
+@pytest.mark.parametrize(
+    "service_name", ["service_in_mem_dict", "service_in_mem_sqlite"]
+)
 def test_not_found_wallet(service_name: str, request: pytest.FixtureRequest) -> None:
     service = request.getfixturevalue(service_name)
     with pytest.raises(DoesNotExistError):
@@ -51,16 +57,24 @@ def test_not_found_wallet(service_name: str, request: pytest.FixtureRequest) -> 
     service.tear_down()
 
 
-@pytest.mark.parametrize("service_name", ["service_in_mem_dict", "service_in_mem_sqlite"])
-def test_not_found_wallet_on_update(service_name: str, request: pytest.FixtureRequest) -> None:
+@pytest.mark.parametrize(
+    "service_name", ["service_in_mem_dict", "service_in_mem_sqlite"]
+)
+def test_not_found_wallet_on_update(
+    service_name: str, request: pytest.FixtureRequest
+) -> None:
     service = request.getfixturevalue(service_name)
     with pytest.raises(DoesNotExistError):
         service.update_amount("address_1", 100)
     service.tear_down()
 
 
-@pytest.mark.parametrize("service_name", ["service_in_mem_dict", "service_in_mem_sqlite"])
-def test_already_exists_wallet(service_name: str, request: pytest.FixtureRequest) -> None:
+@pytest.mark.parametrize(
+    "service_name", ["service_in_mem_dict", "service_in_mem_sqlite"]
+)
+def test_already_exists_wallet(
+    service_name: str, request: pytest.FixtureRequest
+) -> None:
     service = request.getfixturevalue(service_name)
     wallet = WalletBuilder().builder().address("address_1").amount(100).build()
     service.create_wallet(wallet)
@@ -69,14 +83,37 @@ def test_already_exists_wallet(service_name: str, request: pytest.FixtureRequest
     service.tear_down()
 
 
-@pytest.mark.parametrize("service_name", ["service_in_mem_dict", "service_in_mem_sqlite"])
+@pytest.mark.parametrize(
+    "service_name", ["service_in_mem_dict", "service_in_mem_sqlite"]
+)
 def test_get_user_wallets(service_name: str, request: pytest.FixtureRequest) -> None:
     service = request.getfixturevalue(service_name)
     user_1 = UserBuilder().builder().email("user1@example.com").api_key("123").build()
     user_2 = UserBuilder().builder().email("user2@example.com").api_key("456").build()
-    wallet_1 = WalletBuilder().builder().address("address_1").amount(100).user_id(user_1.user_id).build()
-    wallet_2 = WalletBuilder().builder().address("address_2").amount(200).user_id(user_1.user_id).build()
-    wallet_3 = WalletBuilder().builder().address("address_3").amount(300).user_id(user_2.user_id).build()
+    wallet_1 = (
+        WalletBuilder()
+        .builder()
+        .address("address_1")
+        .amount(100)
+        .user_id(user_1.user_id)
+        .build()
+    )
+    wallet_2 = (
+        WalletBuilder()
+        .builder()
+        .address("address_2")
+        .amount(200)
+        .user_id(user_1.user_id)
+        .build()
+    )
+    wallet_3 = (
+        WalletBuilder()
+        .builder()
+        .address("address_3")
+        .amount(300)
+        .user_id(user_2.user_id)
+        .build()
+    )
     service.create_wallet(wallet_1)
     service.create_wallet(wallet_2)
     service.create_wallet(wallet_3)
@@ -86,7 +123,9 @@ def test_get_user_wallets(service_name: str, request: pytest.FixtureRequest) -> 
     service.tear_down()
 
 
-@pytest.mark.parametrize("service_name", ["service_in_mem_dict", "service_in_mem_sqlite"])
+@pytest.mark.parametrize(
+    "service_name", ["service_in_mem_dict", "service_in_mem_sqlite"]
+)
 def test_update_amount(service_name: str, request: pytest.FixtureRequest) -> None:
     service = request.getfixturevalue(service_name)
     wallet = WalletBuilder().builder().address("address_1").amount(100).build()

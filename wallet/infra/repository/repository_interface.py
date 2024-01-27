@@ -1,4 +1,4 @@
-from typing import Protocol, List
+from typing import List, Protocol
 from uuid import UUID
 
 from wallet.core.entity.user import User

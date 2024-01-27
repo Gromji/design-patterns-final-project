@@ -4,7 +4,7 @@ from uuid import UUID
 
 from wallet.core.entity.user import User
 from wallet.core.entity.wallet import Wallet
-from wallet.core.error.errors import DoesNotExistError, AlreadyExistsError
+from wallet.core.error.errors import AlreadyExistsError, DoesNotExistError
 from wallet.infra.repository.repository_interface import IWalletRepository
 from wallet.infra.repository.sqlite.connection_manager import ConnectionManager
 from wallet.infra.repository.sqlite.user_repository import USER_TABLE_NAME
@@ -34,7 +34,9 @@ class WalletRepository(IWalletRepository):
                 wallet = cursor.fetchone()
                 if wallet is None:
                     raise DoesNotExistError(f"Wallet with address {address} not found")
-                return Wallet(address=wallet[0], amount=wallet[1], user_id=UUID(wallet[2]))
+                return Wallet(
+                    address=wallet[0], amount=wallet[1], user_id=UUID(wallet[2])
+                )
 
     def create_wallet(self, wallet: Wallet) -> Wallet:
         with ConnectionManager.get_connection() as conn:
@@ -54,21 +56,30 @@ class WalletRepository(IWalletRepository):
         with ConnectionManager.get_connection() as conn:
             with closing(conn.cursor()) as cursor:
                 cursor.execute(
-                    f"SELECT * FROM {WALLET_TABLE_NAME} WHERE user_id = ?", (str(user.user_id),)
+                    f"SELECT * FROM {WALLET_TABLE_NAME}" f" WHERE user_id = ?",
+                    (str(user.user_id),),
                 )
                 wallets = cursor.fetchall()
 
-                return [Wallet(address=wallet[0], amount=wallet[1], user_id=UUID(wallet[2]))
-                        for wallet in wallets]
+                return [
+                    Wallet(address=wallet[0], amount=wallet[1], user_id=UUID(wallet[2]))
+                    for wallet in wallets
+                ]
 
     def update_amount(self, address: str, amount: int) -> Wallet:
         with ConnectionManager.get_connection() as conn:
             with closing(conn.cursor()) as cursor:
                 cursor.execute(
-                    f"UPDATE {WALLET_TABLE_NAME} SET amount = ? WHERE address = ?", (amount, address,)
+                    f"UPDATE {WALLET_TABLE_NAME} " f"SET amount = ? WHERE address = ?",
+                    (
+                        amount,
+                        address,
+                    ),
                 )
                 if cursor.rowcount == 0:
-                    raise DoesNotExistError(f"Wallet with address {address} does not exist")
+                    raise DoesNotExistError(
+                        f"Wallet with address" f" {address} does not exist"
+                    )
 
         return self.get_wallet(address)
 

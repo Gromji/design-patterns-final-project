@@ -21,8 +21,10 @@ class ConnectionManager:
             )
         conn = ConnectionManager.connections[0]
         cursor = conn.cursor()
-        cursor.execute("PRAGMA foreign_keys = "
-                       f"{'ON' if ConnectionManager.foreign_keys else 'OFF'};")
+        cursor.execute(
+            "PRAGMA foreign_keys = "
+            f"{'ON' if ConnectionManager.foreign_keys else 'OFF'};"
+        )
         cursor.close()
         return ConnectionManager.connections[0]
 
