@@ -37,11 +37,16 @@ class UserService:
 
 
 class TransactionService:
-    # TODO: probably need wallet repository as well
     transaction_repository: ITransactionRepository
+    wallet_repository: IWalletRepository
 
-    def __init__(self, transaction_repository: ITransactionRepository) -> None:
+    def __init__(
+        self,
+        transaction_repository: ITransactionRepository,
+        wallet_repository: IWalletRepository,
+    ) -> None:
         self.transaction_repository = transaction_repository
+        self.wallet_repository = wallet_repository
 
     def get_transaction_by_id(self, transaction_id: UUID) -> Transaction:
         return self.transaction_repository.get_transaction_by_id(transaction_id)
@@ -50,14 +55,32 @@ class TransactionService:
         return self.transaction_repository.get_all_transactions()
 
     def create_transaction(self, transaction: Transaction) -> Transaction:
-        # TODO: probably need to interact with wallet repository as well
-        return self.transaction_repository.create_transaction(transaction)
+        from_wallet = self.wallet_repository.get_wallet(transaction.from_address)
+        to_wallet = self.wallet_repository.get_wallet(transaction.to_address)
+
+        res = self.transaction_repository.create_transaction(transaction)
+
+        from_wallet_new_amount = (
+            self.wallet_repository.get_wallet(from_wallet.address).amount
+            - transaction.amount
+        )
+        to_wallet_new_amount = (
+            self.wallet_repository.get_wallet(to_wallet.address).amount
+            + transaction.amount
+        )
+        self.wallet_repository.update_amount(
+            from_wallet.address, from_wallet_new_amount
+        )
+        self.wallet_repository.update_amount(to_wallet.address, to_wallet_new_amount)
+
+        return res
 
     def filter_transactions(self, wallet: Wallet) -> List[Transaction]:
         return self.transaction_repository.filter_transactions(wallet)
 
     def tear_down(self) -> None:
         self.transaction_repository.tear_down()
+        self.wallet_repository.tear_down()
 
 
 class WalletService:

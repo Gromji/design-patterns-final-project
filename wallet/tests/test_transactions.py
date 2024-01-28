@@ -3,28 +3,42 @@ from uuid import uuid4
 import pytest
 
 from wallet.core.entity.transaction import TransactionBuilder
-from wallet.core.entity.wallet import WalletBuilder
+from wallet.core.entity.wallet import Wallet, WalletBuilder
 from wallet.core.error.errors import AlreadyExistsError, DoesNotExistError
 from wallet.core.facade import TransactionService
 from wallet.infra.repository.memory.transaction_repository import (
     TransactionRepository as InMemoryTransactionRepository,
 )
+from wallet.infra.repository.memory.wallet_repository import (
+    WalletRepository as InMemoryWalletRepository,
+)
 from wallet.infra.repository.sqlite.connection_manager import ConnectionManager
 from wallet.infra.repository.sqlite.transaction_repository import (
     TransactionRepository as SqliteTransactionRepository,
+)
+from wallet.infra.repository.sqlite.wallet_repository import (
+    WalletRepository as SqliteWalletRepository,
 )
 
 
 @pytest.fixture
 def service_in_mem_dict() -> TransactionService:
-    return TransactionService(InMemoryTransactionRepository())
+    ts = TransactionService(InMemoryTransactionRepository(), InMemoryWalletRepository())
+    ts.wallet_repository.create_wallet(Wallet("address_1", 100, uuid4()))
+    ts.wallet_repository.create_wallet(Wallet("address_2", 200, uuid4()))
+    ts.wallet_repository.create_wallet(Wallet("address_3", 300, uuid4()))
+    return ts
 
 
 @pytest.fixture
 def service_in_mem_sqlite() -> TransactionService:
     ConnectionManager.set_foreign_keys(False)
     ConnectionManager.set_in_mem(True)
-    return TransactionService(SqliteTransactionRepository())
+    ts = TransactionService(SqliteTransactionRepository(), SqliteWalletRepository())
+    ts.wallet_repository.create_wallet(Wallet("address_1", 100, uuid4()))
+    ts.wallet_repository.create_wallet(Wallet("address_2", 200, uuid4()))
+    ts.wallet_repository.create_wallet(Wallet("address_3", 300, uuid4()))
+    return ts
 
 
 @pytest.mark.parametrize(
@@ -37,10 +51,12 @@ def test_create_transaction(service_name: str, request: pytest.FixtureRequest) -
         .builder()
         .from_address("address_1")
         .to_address("address_2")
-        .amount(100)
+        .amount(50)
         .build()
     )
     assert transaction.id == service.create_transaction(transaction).id
+    assert service.wallet_repository.get_wallet("address_1").amount == 50
+    assert service.wallet_repository.get_wallet("address_2").amount == 250
     service.tear_down()
 
 
@@ -54,7 +70,7 @@ def test_get_transaction(service_name: str, request: pytest.FixtureRequest) -> N
         .builder()
         .from_address("address_1")
         .to_address("address_2")
-        .amount(100)
+        .amount(50)
         .build()
     )
     service.create_transaction(transaction)
@@ -87,7 +103,7 @@ def test_already_exists_transaction(
         .builder()
         .from_address("address_1")
         .to_address("address_2")
-        .amount(100)
+        .amount(50)
         .build()
     )
     service.create_transaction(transaction)
@@ -122,7 +138,7 @@ def test_filter_transactions(service_name: str, request: pytest.FixtureRequest) 
         .builder()
         .from_address("address_1")
         .to_address("address_2")
-        .amount(100)
+        .amount(50)
         .build()
     )
     service.create_transaction(transaction_1)
@@ -150,7 +166,7 @@ def test_get_all_transactions(
         .builder()
         .from_address("address_1")
         .to_address("address_2")
-        .amount(100)
+        .amount(50)
         .build()
     )
     transaction_2 = (
