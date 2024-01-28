@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 isort black mypy
+          pip install -r requirements.txt
 
       - name: Run Flake8
         run: flake8 wallet
@@ -36,4 +36,4 @@ jobs:
         run: black --check wallet
 
       - name: Run mypy
-        run: mypy --allow-untyped-decorators wallet
+        run: mypy --allow-untyped-decorators --ignore-missing-imports --strict wallet

@@ -4,3 +4,7 @@ class DoesNotExistError(Exception):
 
 class AlreadyExistsError(Exception):
     pass
+
+
+class WrongEmailError(Exception):
+    pass
