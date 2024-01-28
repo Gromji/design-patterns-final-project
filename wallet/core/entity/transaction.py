@@ -11,7 +11,7 @@ class Transaction:
     to_address: str
     amount: int
     fee: int
-    id: UUID = field(default_factory=uuid4)
+    transaction_id: UUID = field(default_factory=uuid4)
 
 
 class ITransactionBuilder(Protocol):
@@ -61,7 +61,7 @@ class TransactionBuilder(ITransactionBuilder):
         return self
 
     def id(self, t_id: UUID) -> ITransactionBuilder:
-        self.transaction.id = t_id
+        self.transaction.transaction_id = t_id
         return self
 
     def build(self) -> Transaction:

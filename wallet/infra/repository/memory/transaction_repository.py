@@ -23,12 +23,12 @@ class TransactionRepository(ITransactionRepository):
         return [v for v in self.transactions.values()]
 
     def create_transaction(self, transaction: Transaction) -> Transaction:
-        if transaction.id in self.transactions:
+        if transaction.transaction_id in self.transactions:
             raise AlreadyExistsError(
-                f"Transaction with id {str(transaction.id)} already exists"
+                f"Transaction with id {str(transaction.transaction_id)} already exists"
             )
 
-        self.transactions[transaction.id] = transaction
+        self.transactions[transaction.transaction_id] = transaction
         return transaction
 
     def filter_transactions(self, wallet: Wallet) -> List[Transaction]:

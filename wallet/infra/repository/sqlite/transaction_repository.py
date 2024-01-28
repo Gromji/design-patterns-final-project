@@ -2,7 +2,7 @@ from contextlib import closing
 from typing import List
 from uuid import UUID
 
-from wallet.core.entity.transaction import Transaction
+from wallet.core.entity.transaction import Transaction, TransactionBuilder
 from wallet.core.entity.wallet import Wallet
 from wallet.core.error.errors import AlreadyExistsError, DoesNotExistError
 from wallet.infra.repository.repository_interface import ITransactionRepository
@@ -42,12 +42,15 @@ class TransactionRepository(ITransactionRepository):
                     raise DoesNotExistError(
                         f"Transaction with id {str(transaction_id)} not found"
                     )
-                return Transaction(
-                    id=transaction[0],
-                    from_address=transaction[1],
-                    to_address=transaction[2],
-                    amount=transaction[3],
-                    fee=transaction[4],
+                return (
+                    TransactionBuilder()
+                    .builder()
+                    .id(transaction[0])
+                    .from_address(transaction[1])
+                    .to_address(transaction[1])
+                    .amount(transaction[3])
+                    .fee(transaction[4])
+                    .build()
                 )
 
     def get_all_transactions(self) -> List[Transaction]:
@@ -56,13 +59,14 @@ class TransactionRepository(ITransactionRepository):
                 cursor.execute(f"SELECT * FROM {TRANSACTION_TABLE_NAME}")
                 transactions = cursor.fetchall()
                 return [
-                    Transaction(
-                        id=t[0],
-                        from_address=t[1],
-                        to_address=t[2],
-                        amount=t[3],
-                        fee=t[4],
-                    )
+                    TransactionBuilder()
+                    .builder()
+                    .id(t[0])
+                    .from_address(t[1])
+                    .to_address(t[2])
+                    .amount(t[3])
+                    .fee(t[4])
+                    .build()
                     for t in transactions
                 ]
 
@@ -73,7 +77,7 @@ class TransactionRepository(ITransactionRepository):
                     cursor.execute(
                         f"INSERT INTO {TRANSACTION_TABLE_NAME} VALUES (?, ?, ?, ?, ?)",
                         (
-                            str(transaction.id),
+                            str(transaction.transaction_id),
                             transaction.from_address,
                             transaction.to_address,
                             transaction.amount,
@@ -82,7 +86,7 @@ class TransactionRepository(ITransactionRepository):
                     )
             except Exception as e:
                 raise AlreadyExistsError(
-                    f"Transaction with id {transaction.id} already exists"
+                    f"Transaction with id {transaction.transaction_id} already exists"
                 ) from e
             return transaction
 
@@ -92,13 +96,14 @@ class TransactionRepository(ITransactionRepository):
                 cursor.execute(f"SELECT * FROM {TRANSACTION_TABLE_NAME}")
                 transactions = cursor.fetchall()
                 return [
-                    Transaction(
-                        id=t[0],
-                        from_address=t[1],
-                        to_address=t[2],
-                        amount=t[3],
-                        fee=t[4],
-                    )
+                    TransactionBuilder()
+                    .builder()
+                    .id(t[0])
+                    .from_address(t[1])
+                    .to_address(t[2])
+                    .amount(t[3])
+                    .fee(t[4])
+                    .build()
                     for t in transactions
                     if wallet.address in (t[1], t[2])
                 ]

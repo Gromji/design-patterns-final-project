@@ -54,7 +54,10 @@ def test_create_transaction(service_name: str, request: pytest.FixtureRequest) -
         .amount(50)
         .build()
     )
-    assert transaction.id == service.create_transaction(transaction).id
+    assert (
+        transaction.transaction_id
+        == service.create_transaction(transaction).transaction_id
+    )
     assert service.wallet_repository.get_wallet("address_1").amount == 50
     assert service.wallet_repository.get_wallet("address_2").amount == 250
     service.tear_down()
@@ -74,7 +77,7 @@ def test_get_transaction(service_name: str, request: pytest.FixtureRequest) -> N
         .build()
     )
     service.create_transaction(transaction)
-    retrieved_transaction = service.get_transaction_by_id(transaction.id)
+    retrieved_transaction = service.get_transaction_by_id(transaction.transaction_id)
     assert retrieved_transaction.amount == transaction.amount
     service.tear_down()
 
