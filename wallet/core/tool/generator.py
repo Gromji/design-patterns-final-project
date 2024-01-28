@@ -2,11 +2,11 @@ import uuid
 from typing import Protocol
 
 
-class IApiKeyGen(Protocol):
-    def generate(self) -> str:
+class IGenerator(Protocol):
+    def generate_api_key(self) -> str:
         pass
 
 
-class ApiKeyGen(IApiKeyGen):
-    def generate(self) -> str:
+class DefaultGenerator(IGenerator):
+    def generate_api_key(self) -> str:
         return str(uuid.uuid4())

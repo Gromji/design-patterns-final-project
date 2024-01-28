@@ -1,19 +1,22 @@
-from typing import List
+from dataclasses import dataclass, field
+from typing import List, Type
 from uuid import UUID
 
 from wallet.core.entity.user import User
 from wallet.core.entity.wallet import Wallet
+from wallet.core.tool.generator import DefaultGenerator, IGenerator
+from wallet.core.tool.validator import DefaultValidator, IValidator
 from wallet.infra.repository.repository_interface import (
     IUserRepository,
     IWalletRepository,
 )
 
 
+@dataclass
 class UserService:
     user_repository: IUserRepository
-
-    def __init__(self, user_repository: IUserRepository) -> None:
-        self.user_repository = user_repository
+    generator: IGenerator = field(default_factory=DefaultGenerator)
+    validator: Type[IValidator] = field(default=DefaultValidator)
 
     def get_user_by_id(self, user_id: UUID) -> User:
         return self.user_repository.get_user_by_id(user_id)
@@ -22,6 +25,9 @@ class UserService:
         return self.user_repository.get_user_by_email(email)
 
     def create_user(self, user: User) -> User:
+        if user.api_key == "":
+            user.api_key = self.generator.generate_api_key()
+        self.validator.validate_user(user)
         return self.user_repository.create_user(user)
 
     def get_api_key_by_id(self, user_id: UUID) -> str:
@@ -34,11 +40,9 @@ class UserService:
         self.user_repository.tear_down()
 
 
+@dataclass
 class WalletService:
     wallet_repository: IWalletRepository
-
-    def __init__(self, wallet_repository: IWalletRepository) -> None:
-        self.wallet_repository = wallet_repository
 
     def create_wallet(self, wallet: Wallet) -> Wallet:
         return self.wallet_repository.create_wallet(wallet)
