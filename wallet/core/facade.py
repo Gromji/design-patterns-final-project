@@ -2,11 +2,13 @@ from dataclasses import dataclass, field
 from typing import List, Type
 from uuid import UUID
 
+from wallet.core.entity.transaction import Transaction
 from wallet.core.entity.user import User
 from wallet.core.entity.wallet import Wallet
 from wallet.core.tool.generator import DefaultGenerator, IGenerator
 from wallet.core.tool.validator import DefaultValidator, IValidator
 from wallet.infra.repository.repository_interface import (
+    ITransactionRepository,
     IUserRepository,
     IWalletRepository,
 )
@@ -38,6 +40,53 @@ class UserService:
 
     def tear_down(self) -> None:
         self.user_repository.tear_down()
+
+
+class TransactionService:
+    transaction_repository: ITransactionRepository
+    wallet_repository: IWalletRepository
+
+    def __init__(
+        self,
+        transaction_repository: ITransactionRepository,
+        wallet_repository: IWalletRepository,
+    ) -> None:
+        self.transaction_repository = transaction_repository
+        self.wallet_repository = wallet_repository
+
+    def get_transaction_by_id(self, transaction_id: UUID) -> Transaction:
+        return self.transaction_repository.get_transaction_by_id(transaction_id)
+
+    def get_all_transactions(self) -> List[Transaction]:
+        return self.transaction_repository.get_all_transactions()
+
+    def create_transaction(self, transaction: Transaction) -> Transaction:
+        from_wallet = self.wallet_repository.get_wallet(transaction.from_address)
+        to_wallet = self.wallet_repository.get_wallet(transaction.to_address)
+
+        res = self.transaction_repository.create_transaction(transaction)
+
+        from_wallet_new_amount = (
+            self.wallet_repository.get_wallet(from_wallet.address).amount
+            - transaction.amount
+        )
+        to_wallet_new_amount = (
+            self.wallet_repository.get_wallet(to_wallet.address).amount
+            + transaction.amount
+        )
+        self.wallet_repository.update_amount(
+            from_wallet.address, from_wallet_new_amount
+        )
+        self.wallet_repository.update_amount(to_wallet.address, to_wallet_new_amount)
+
+        return res
+
+    def filter_transactions(self, wallet: Wallet) -> List[Transaction]:
+        return self.transaction_repository.filter_transactions(wallet)
+
+    def tear_down(self) -> None:
+        self.transaction_repository.tear_down()
+        self.wallet_repository.tear_down()
 
 
 @dataclass
