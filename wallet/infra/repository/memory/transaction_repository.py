@@ -1,9 +1,9 @@
-from typing import List, Dict
+from typing import Dict, List
 from uuid import UUID
 
 from wallet.core.entity.transaction import Transaction
 from wallet.core.entity.wallet import Wallet
-from wallet.core.error.errors import DoesNotExistError, AlreadyExistsError
+from wallet.core.error.errors import AlreadyExistsError, DoesNotExistError
 from wallet.infra.repository.repository_interface import ITransactionRepository
 
 
@@ -15,21 +15,28 @@ class TransactionRepository(ITransactionRepository):
         try:
             return self.transactions[transaction_id]
         except KeyError:
-            raise DoesNotExistError(f"Transaction with id {str(transaction_id)} not found")
+            raise DoesNotExistError(
+                f"Transaction with id {str(transaction_id)} not found"
+            )
 
     def get_all_transactions(self) -> List[Transaction]:
         return [v for v in self.transactions.values()]
 
     def create_transaction(self, transaction: Transaction) -> Transaction:
         if transaction.id in self.transactions:
-            raise AlreadyExistsError(f"Transaction with id {str(transaction.id)} already exists")
+            raise AlreadyExistsError(
+                f"Transaction with id {str(transaction.id)} already exists"
+            )
 
         self.transactions[transaction.id] = transaction
         return transaction
 
     def filter_transactions(self, wallet: Wallet) -> List[Transaction]:
-        return [v for v in self.transactions.values()
-                if wallet.address in (v.from_address, v.to_address)]
+        return [
+            v
+            for v in self.transactions.values()
+            if wallet.address in (v.from_address, v.to_address)
+        ]
 
     def tear_down(self) -> None:
         self.transactions = {}

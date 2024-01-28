@@ -5,9 +5,9 @@ from wallet.core.entity.transaction import Transaction
 from wallet.core.entity.user import User
 from wallet.core.entity.wallet import Wallet
 from wallet.infra.repository.repository_interface import (
+    ITransactionRepository,
     IUserRepository,
     IWalletRepository,
-    ITransactionRepository
 )
 
 
