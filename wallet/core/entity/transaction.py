@@ -30,7 +30,7 @@ class ITransactionBuilder(Protocol):
     def fee(self, fee: int) -> ITransactionBuilder:
         pass
 
-    def id(self, t_id: UUID) -> ITransactionBuilder:
+    def transaction_id(self, transaction_id: UUID) -> ITransactionBuilder:
         pass
 
     def build(self) -> Transaction:
@@ -60,8 +60,8 @@ class TransactionBuilder(ITransactionBuilder):
         self.transaction.fee = fee
         return self
 
-    def id(self, t_id: UUID) -> ITransactionBuilder:
-        self.transaction.transaction_id = t_id
+    def transaction_id(self, transaction_id: UUID) -> ITransactionBuilder:
+        self.transaction.transaction_id = transaction_id
         return self
 
     def build(self) -> Transaction:

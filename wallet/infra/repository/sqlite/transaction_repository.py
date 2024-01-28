@@ -45,7 +45,7 @@ class TransactionRepository(ITransactionRepository):
                 return (
                     TransactionBuilder()
                     .builder()
-                    .id(transaction[0])
+                    .transaction_id(transaction[0])
                     .from_address(transaction[1])
                     .to_address(transaction[1])
                     .amount(transaction[3])
@@ -61,7 +61,7 @@ class TransactionRepository(ITransactionRepository):
                 return [
                     TransactionBuilder()
                     .builder()
-                    .id(t[0])
+                    .transaction_id(t[0])
                     .from_address(t[1])
                     .to_address(t[2])
                     .amount(t[3])
@@ -98,7 +98,7 @@ class TransactionRepository(ITransactionRepository):
                 return [
                     TransactionBuilder()
                     .builder()
-                    .id(t[0])
+                    .transaction_id(t[0])
                     .from_address(t[1])
                     .to_address(t[2])
                     .amount(t[3])
