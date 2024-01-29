@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import List, Type
+from typing import List
 from uuid import UUID
 
 from wallet.core.entity.transaction import Transaction
@@ -18,13 +18,16 @@ from wallet.infra.repository.repository_interface import (
 class UserService:
     user_repository: IUserRepository
     generator: IGenerator = field(default_factory=DefaultGenerator)
-    validator: Type[IValidator] = field(default=DefaultValidator)
+    validator: IValidator = field(default_factory=DefaultValidator)
 
     def get_user_by_id(self, user_id: UUID) -> User:
         return self.user_repository.get_user_by_id(user_id)
 
     def get_user_by_email(self, email: str) -> User:
         return self.user_repository.get_user_by_email(email)
+
+    def get_user_by_api_key(self, api_key: str) -> User:
+        return self.user_repository.get_user_by_api_key(api_key)
 
     def create_user(self, user: User) -> User:
         if user.api_key == "":
@@ -92,12 +95,22 @@ class TransactionService:
 @dataclass
 class WalletService:
     wallet_repository: IWalletRepository
+    generator: IGenerator = field(default_factory=DefaultGenerator)
+    validator: IValidator = field(default_factory=DefaultValidator)
 
     def create_wallet(self, wallet: Wallet) -> Wallet:
+        if wallet.address == "":
+            wallet.address = self.generator.generate_wallet_address()
+        self.validator.validate_wallet(wallet)
         return self.wallet_repository.create_wallet(wallet)
 
-    def get_wallet(self, address: str) -> Wallet:
-        return self.wallet_repository.get_wallet(address)
+    def get_wallet(
+        self, address: str, user: User, validate_owner: bool = True
+    ) -> Wallet:
+        wallet = self.wallet_repository.get_wallet(address)
+        if validate_owner:
+            self.validator.validate_wallet_owner(wallet, user)
+        return wallet
 
     def get_user_wallets(self, user: User) -> List[Wallet]:
         return self.wallet_repository.get_user_wallets(user)

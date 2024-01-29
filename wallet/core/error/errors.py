@@ -12,3 +12,7 @@ class WrongEmailError(Exception):
 
 class ConversionError(Exception):
     pass
+
+
+class WrongOwnerError(Exception):
+    pass

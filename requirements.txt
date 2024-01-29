@@ -2,8 +2,11 @@ black
 flake8
 isort
 mypy
+pydantic
+typer
 pytest
 uvicorn
 fastapi
 starlette
 types-requests
+requests

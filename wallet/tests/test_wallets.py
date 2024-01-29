@@ -42,7 +42,7 @@ def test_get_wallet(service_name: str, request: pytest.FixtureRequest) -> None:
     service = request.getfixturevalue(service_name)
     wallet = WalletBuilder().builder().address("address_1").amount(100).build()
     service.create_wallet(wallet)
-    wallet1 = service.get_wallet("address_1")
+    wallet1 = service.get_wallet("address_1", UserBuilder().builder().build(), False)
     assert wallet.amount == wallet1.amount and wallet.user_id == wallet1.user_id
     service.tear_down()
 
@@ -53,7 +53,7 @@ def test_get_wallet(service_name: str, request: pytest.FixtureRequest) -> None:
 def test_not_found_wallet(service_name: str, request: pytest.FixtureRequest) -> None:
     service = request.getfixturevalue(service_name)
     with pytest.raises(DoesNotExistError):
-        service.get_wallet("address_1")
+        service.get_wallet("address_1", UserBuilder().builder().build(), False)
     service.tear_down()
 
 
