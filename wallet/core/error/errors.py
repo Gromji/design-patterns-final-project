@@ -8,3 +8,7 @@ class AlreadyExistsError(Exception):
 
 class WrongEmailError(Exception):
     pass
+
+
+class ConversionError(Exception):
+    pass
