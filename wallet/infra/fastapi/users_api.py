@@ -5,7 +5,6 @@ from pydantic import BaseModel
 from starlette.responses import JSONResponse
 
 from wallet.core.entity.user import UserBuilder
-from wallet.core.error.errors import WrongEmailError, AlreadyExistsError
 from wallet.infra.fastapi.dependables import UserServiceDependable
 
 users_api = APIRouter()

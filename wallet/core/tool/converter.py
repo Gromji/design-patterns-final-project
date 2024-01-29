@@ -35,6 +35,9 @@ class Converter(IConverter):
 
         raise ConversionError("Error when trying to convert BTC to USD")
 
+    def satoshi_to_usd(self, value: int) -> float:
+        return self.btc_to_usd(self.satoshi_to_btc(value))
+
     @staticmethod
     def btc_to_satoshi(value: float) -> int:
         return int(value * BTC_TO_SATOSHI)

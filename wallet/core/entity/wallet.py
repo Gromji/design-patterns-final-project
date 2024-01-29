@@ -5,7 +5,6 @@ from typing import Protocol
 from uuid import UUID, uuid4
 
 
-
 @dataclass
 class Wallet:
     address: str

@@ -35,8 +35,7 @@ class DefaultValidator(IValidator):
 
         return bool(match)
 
-
     @staticmethod
     def validate_wallet_owner(wallet: Wallet, user: User) -> None:
         if wallet.user_id != user.user_id:
-            raise WrongOwnerError(f"Wrong api_key: {user.api_key}")
+            raise WrongOwnerError(f"Wrong owner! api_key: {user.api_key}")

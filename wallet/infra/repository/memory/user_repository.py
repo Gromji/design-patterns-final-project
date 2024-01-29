@@ -22,6 +22,12 @@ class UserRepository(IUserRepository):
                 return user
         raise DoesNotExistError(f"User with email {email} not found")
 
+    def get_user_by_api_key(self, api_key: str) -> User:
+        for user in self.users.values():
+            if user.api_key == api_key:
+                return user
+        raise DoesNotExistError(f"User with api_key {api_key} not found")
+
     def create_user(self, user: User) -> User:
         if user.user_id in self.users:
             raise AlreadyExistsError(f"User with id {user.user_id} already exists")
