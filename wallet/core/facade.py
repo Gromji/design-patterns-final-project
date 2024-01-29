@@ -104,8 +104,10 @@ class WalletService:
         self.validator.validate_wallet(wallet)
         return self.wallet_repository.create_wallet(wallet)
 
-    def get_wallet(self, address: str) -> Wallet:
-        return self.wallet_repository.get_wallet(address)
+    def get_wallet(self, address: str, user: User) -> Wallet:
+        wallet = self.wallet_repository.get_wallet(address)
+        self.validator.validate_wallet_owner(wallet, user)
+        return wallet
 
     def get_user_wallets(self, user: User) -> List[Wallet]:
         return self.wallet_repository.get_user_wallets(user)

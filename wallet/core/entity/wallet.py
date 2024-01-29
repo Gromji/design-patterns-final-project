@@ -5,8 +5,6 @@ from typing import Protocol
 from uuid import UUID, uuid4
 
 
-BTC_TO_SATOSHI = 100_000_000
-DEFAULT_WALLET_BALANCE = BTC_TO_SATOSHI
 
 @dataclass
 class Wallet:
