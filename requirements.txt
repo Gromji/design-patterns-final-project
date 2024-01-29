@@ -6,3 +6,4 @@ pytest
 uvicorn
 fastapi
 starlette
+types-requests
