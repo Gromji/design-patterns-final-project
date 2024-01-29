@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from starlette.responses import JSONResponse
 
 from wallet.core.entity.user import UserBuilder
-from wallet.core.error.errors import WrongEmailError
+from wallet.core.error.errors import WrongEmailError, AlreadyExistsError
 from wallet.infra.fastapi.dependables import UserServiceDependable
 
 users_api = APIRouter()
@@ -26,8 +26,8 @@ def create_user(
     user = UserBuilder().builder().email(create_request.email).build()
     try:
         return {"api_key": service.create_user(user).api_key}
-    except WrongEmailError:
+    except Exception as err:
         return JSONResponse(
             status_code=409,
-            content={"error": {"message": f"Wrong email: {create_request.email}"}},
+            content={"error": {"message": err.args}},
         )

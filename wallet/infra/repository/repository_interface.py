@@ -13,6 +13,9 @@ class IUserRepository(Protocol):
     def get_user_by_email(self, email: str) -> User:
         pass
 
+    def get_user_by_api_key(self, api_key: str) -> User:
+        pass
+
     def create_user(self, user: User) -> User:
         pass
 

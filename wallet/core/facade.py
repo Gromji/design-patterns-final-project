@@ -26,6 +26,9 @@ class UserService:
     def get_user_by_email(self, email: str) -> User:
         return self.user_repository.get_user_by_email(email)
 
+    def get_user_by_api_key(self, api_key: str) -> User:
+        return self.user_repository.get_user_by_api_key(api_key)
+
     def create_user(self, user: User) -> User:
         if user.api_key == "":
             user.api_key = self.generator.generate_api_key()
@@ -92,8 +95,13 @@ class TransactionService:
 @dataclass
 class WalletService:
     wallet_repository: IWalletRepository
+    generator: IGenerator = field(default_factory=DefaultGenerator)
+    validator: Type[IValidator] = field(default=DefaultValidator)
 
     def create_wallet(self, wallet: Wallet) -> Wallet:
+        if wallet.address == "":
+            wallet.address = self.generator.generate_wallet_address()
+        self.validator.validate_wallet(wallet)
         return self.wallet_repository.create_wallet(wallet)
 
     def get_wallet(self, address: str) -> Wallet:

@@ -41,6 +41,17 @@ class UserRepository(IUserRepository):
                     raise DoesNotExistError(f"User with email {email} not found")
                 return User(user_id=UUID(user[0]), email=user[1], api_key=user[2])
 
+    def get_user_by_api_key(self, api_key: str) -> User:
+        with ConnectionManager.get_connection() as conn:
+            with closing(conn.cursor()) as cursor:
+                cursor.execute(
+                    f"SELECT * FROM {USER_TABLE_NAME} WHERE api_key = ?", (api_key,)
+                )
+                user = cursor.fetchone()
+                if user is None:
+                    raise DoesNotExistError(f"User with api_key {api_key} not found")
+                return User(user_id=UUID(user[0]), email=user[1], api_key=user[2])
+
     def create_user(self, user: User) -> User:
         with ConnectionManager.get_connection() as conn:
             try:
