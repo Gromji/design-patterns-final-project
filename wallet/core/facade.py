@@ -48,6 +48,7 @@ class UserService:
 class TransactionService:
     transaction_repository: ITransactionRepository
     wallet_repository: IWalletRepository
+    validator: IValidator = field(default_factory=DefaultValidator)
 
     def __init__(
         self,
@@ -63,8 +64,10 @@ class TransactionService:
     def get_all_transactions(self) -> List[Transaction]:
         return self.transaction_repository.get_all_transactions()
 
-    def create_transaction(self, transaction: Transaction) -> Transaction:
+    def create_transaction(self, transaction: Transaction, sender: User, validate_sender: bool = True) -> Transaction:
         from_wallet = self.wallet_repository.get_wallet(transaction.from_address)
+        if validate_sender:
+            self.validator.validate_wallet_owner(from_wallet, sender)
         to_wallet = self.wallet_repository.get_wallet(transaction.to_address)
 
         res = self.transaction_repository.create_transaction(transaction)
