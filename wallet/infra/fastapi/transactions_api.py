@@ -15,27 +15,19 @@ transactions_api = APIRouter()
 class TransactionListResponse(BaseModel):
     transactions_list: list
 
-
-class ApiRequest(BaseModel):
-    api_key: str
-
-
-class MakeTransactionRequest(BaseModel):
-    api_key: str
-    sender_wallet_address: str
-    receiver_wallet_address: str
-    amount: int
+class TransactionIdResponse(BaseModel):
+    transaction_id: str
 
 
 @transactions_api.get("/", status_code=201, response_model=TransactionListResponse)
 def list_transactions(
-    list_request: ApiRequest,
+    api_key: str,
     user_service: UserServiceDependable,
     wallet_service: WalletServiceDependable,
     transaction_service: TransactionServiceDependable,
 ) -> list[Transaction] | JSONResponse:
     try:
-        user = user_service.get_user_by_api_key(list_request.api_key)
+        user = user_service.get_user_by_api_key(api_key)
         wallets = wallet_service.get_user_wallets(user)
         transactions: list[Transaction] = []
         for wallet in wallets:
@@ -49,23 +41,26 @@ def list_transactions(
         )
 
 
-@transactions_api.post("/", status_code=201)
+@transactions_api.post("/", status_code=201, response_model=TransactionIdResponse)
 def make_transaction(
-    make_transaction_request: MakeTransactionRequest,
+    api_key: str,
+    sender_wallet_address: str,
+    receiver_wallet_address: str,
+    amount: int,
     user_service: UserServiceDependable,
     transaction_service: TransactionServiceDependable,
-) -> None | JSONResponse:
+) -> TransactionIdResponse | JSONResponse:
     try:
-        issuer = user_service.get_user_by_api_key(make_transaction_request.api_key)
+        issuer = user_service.get_user_by_api_key(api_key)
         transaction = (
             TransactionBuilder()
             .builder()
-            .from_address(make_transaction_request.sender_wallet_address)
-            .to_address(make_transaction_request.receiver_wallet_address)
-            .amount(make_transaction_request.amount)
+            .from_address(sender_wallet_address)
+            .to_address(receiver_wallet_address)
+            .amount(amount)
             .build()
         )
-        transaction_service.create_transaction(transaction, issuer)
+        return transaction_service.create_transaction(transaction, issuer).transaction_id
     except Exception as err:
         return JSONResponse(
             status_code=409,
