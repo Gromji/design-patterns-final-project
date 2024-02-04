@@ -4,9 +4,9 @@ from starlette.responses import JSONResponse
 
 from wallet.core.entity.transaction import TransactionBuilder
 from wallet.infra.fastapi.dependables import (
+    TransactionServiceDependable,
     UserServiceDependable,
     WalletServiceDependable,
-    TransactionServiceDependable,
 )
 
 transactions_api = APIRouter()
@@ -44,14 +44,16 @@ def list_transactions(
         for wallet in wallets:
             transactions += transaction_service.filter_transactions(wallet)
 
-        response = [ 
-        {
-            "id": str(t.transaction_id),
-            "from_address": t.from_address,
-            "to_address": t.to_address,
-            "amount": t.amount,
-            "fee": t.fee
-        } for t in set(transactions)]
+        response = [
+            {
+                "id": str(t.transaction_id),
+                "from_address": t.from_address,
+                "to_address": t.to_address,
+                "amount": t.amount,
+                "fee": t.fee,
+            }
+            for t in set(transactions)
+        ]
 
         return {"transaction_list": response}
     except Exception as err:
@@ -79,9 +81,9 @@ def make_transaction(
             .build()
         )
         transaction_service.create_transaction(transaction, issuer)
+        return None
     except Exception as err:
         return JSONResponse(
             status_code=409,
             content={"error": {"message": err.args}},
         )
-

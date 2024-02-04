@@ -13,7 +13,7 @@ class Transaction:
     fee: int
     transaction_id: UUID = field(default_factory=uuid4)
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.transaction_id)
 
 

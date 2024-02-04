@@ -7,8 +7,8 @@ from starlette.responses import JSONResponse
 from wallet.core.entity.wallet import WalletBuilder
 from wallet.core.tool.converter import DEFAULT_WALLET_BALANCE, Converter
 from wallet.infra.fastapi.dependables import (
-    UserServiceDependable,
     TransactionServiceDependable,
+    UserServiceDependable,
     WalletServiceDependable,
 )
 
@@ -20,6 +20,7 @@ class WalletResponse(BaseModel):
     amount_in_btc: float
     amount_in_usd: float
 
+
 class WalletTransactionResponse(BaseModel):
     id: str
     from_address: str
@@ -27,8 +28,10 @@ class WalletTransactionResponse(BaseModel):
     amount: int
     fee: int
 
+
 class WalletTransactionsResponse(BaseModel):
     transactions: list[WalletTransactionResponse]
+
 
 class WalletRequest(BaseModel):
     api_key: str
@@ -93,7 +96,12 @@ def get_wallet(
         "amount_in_usd": amount_usd,
     }
 
-@wallet_api.get(path="/{address}/transactions", status_code=200, response_model=WalletTransactionsResponse)
+
+@wallet_api.get(
+    path="/{address}/transactions",
+    status_code=200,
+    response_model=WalletTransactionsResponse,
+)
 def get_wallet_transactions(
     address: str,
     user_service: UserServiceDependable,
@@ -106,17 +114,18 @@ def get_wallet_transactions(
         wallet = wallet_service.get_wallet(address, user)
         transactions = transaction_service.filter_transactions(wallet)
         response = [
-        {
-            "id": str(t.transaction_id),
-            "from_address": t.from_address,
-            "to_address": t.to_address,
-            "amount": t.amount,
-            "fee": t.fee
-        } for t in set(transactions)]
+            {
+                "id": str(t.transaction_id),
+                "from_address": t.from_address,
+                "to_address": t.to_address,
+                "amount": t.amount,
+                "fee": t.fee,
+            }
+            for t in set(transactions)
+        ]
         return {"transactions": response}
     except Exception as err:
         return JSONResponse(
             status_code=409,
             content={"error": {"message": err.args}},
         )
-
