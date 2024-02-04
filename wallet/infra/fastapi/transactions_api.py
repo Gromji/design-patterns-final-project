@@ -1,3 +1,5 @@
+from typing import Any
+
 from fastapi import APIRouter, Header
 from pydantic import BaseModel
 from starlette.responses import JSONResponse
@@ -36,7 +38,7 @@ def list_transactions(
     wallet_service: WalletServiceDependable,
     transaction_service: TransactionServiceDependable,
     api_key: str = Header(..., convert_underscores=False),
-) -> dict[str, list[dict[str, str | int]]] | JSONResponse:
+) -> dict[str, list[dict[str, Any]]] | JSONResponse:
     try:
         user = user_service.get_user_by_api_key(api_key)
         wallets = wallet_service.get_user_wallets(user)
