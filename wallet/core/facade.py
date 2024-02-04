@@ -45,18 +45,11 @@ class UserService:
         self.user_repository.tear_down()
 
 
+@dataclass
 class TransactionService:
     transaction_repository: ITransactionRepository
     wallet_repository: IWalletRepository
     validator: IValidator = field(default_factory=DefaultValidator)
-
-    def __init__(
-        self,
-        transaction_repository: ITransactionRepository,
-        wallet_repository: IWalletRepository,
-    ) -> None:
-        self.transaction_repository = transaction_repository
-        self.wallet_repository = wallet_repository
 
     def get_transaction_by_id(self, transaction_id: UUID) -> Transaction:
         return self.transaction_repository.get_transaction_by_id(transaction_id)
