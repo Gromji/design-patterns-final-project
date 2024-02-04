@@ -49,7 +49,7 @@ def list_transactions(
         )
 
 
-@transactions_api.post("/", status_code=201)
+@transactions_api.post("/", status_code=201, response_model=None)
 def make_transaction(
     make_transaction_request: MakeTransactionRequest,
     user_service: UserServiceDependable,
