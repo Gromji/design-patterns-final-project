@@ -51,7 +51,7 @@ def list_transactions(
             "to_address": t.to_address,
             "amount": t.amount,
             "fee": t.fee
-        } for t in transactions]
+        } for t in set(transactions)]
 
         return {"transaction_list": response}
     except Exception as err:

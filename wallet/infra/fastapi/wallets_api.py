@@ -8,6 +8,7 @@ from wallet.core.entity.wallet import WalletBuilder
 from wallet.core.tool.converter import DEFAULT_WALLET_BALANCE, Converter
 from wallet.infra.fastapi.dependables import (
     UserServiceDependable,
+    TransactionServiceDependable,
     WalletServiceDependable,
 )
 
@@ -19,6 +20,15 @@ class WalletResponse(BaseModel):
     amount_in_btc: float
     amount_in_usd: float
 
+class WalletTransactionResponse(BaseModel):
+    id: str
+    from_address: str
+    to_address: str
+    amount: int
+    fee: int
+
+class WalletTransactionsResponse(BaseModel):
+    transactions: list[WalletTransactionResponse]
 
 class WalletRequest(BaseModel):
     api_key: str
@@ -82,3 +92,31 @@ def get_wallet(
         "amount_in_btc": amount_btc,
         "amount_in_usd": amount_usd,
     }
+
+@wallet_api.get(path="/{address}/transactions", status_code=200, response_model=WalletTransactionsResponse)
+def get_wallet_transactions(
+    address: str,
+    user_service: UserServiceDependable,
+    wallet_service: WalletServiceDependable,
+    transaction_service: TransactionServiceDependable,
+    api_key: str = Header(..., convert_underscores=False),
+) -> dict[str, Any] | JSONResponse:
+    try:
+        user = user_service.get_user_by_api_key(api_key)
+        wallet = wallet_service.get_wallet(address, user)
+        transactions = transaction_service.filter_transactions(wallet)
+        response = [
+        {
+            "id": str(t.transaction_id),
+            "from_address": t.from_address,
+            "to_address": t.to_address,
+            "amount": t.amount,
+            "fee": t.fee
+        } for t in set(transactions)]
+        return {"transactions": response}
+    except Exception as err:
+        return JSONResponse(
+            status_code=409,
+            content={"error": {"message": err.args}},
+        )
+
