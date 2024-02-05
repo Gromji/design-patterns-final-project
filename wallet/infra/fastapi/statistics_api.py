@@ -17,7 +17,7 @@ class StatisticsResponse(BaseModel):
 @statistics_api.get("/", status_code=201, response_model=StatisticsResponse)
 def list_transactions(
     transaction_service: TransactionServiceDependable,
-    api_key: str = Header(..., convert_underscores=False),
+    api_key: str = Header(..., convert_underscores=False, alias="X-API-KEY"),
 ) -> dict[str, int] | JSONResponse:
     if api_key != admin_api_key:
         return JSONResponse(status_code=401, content={"detail": "Unauthorized"})

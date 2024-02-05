@@ -37,7 +37,7 @@ def list_transactions(
     user_service: UserServiceDependable,
     wallet_service: WalletServiceDependable,
     transaction_service: TransactionServiceDependable,
-    api_key: str = Header(..., convert_underscores=False),
+    api_key: str = Header(..., convert_underscores=False, alias="X-API-KEY"),
 ) -> dict[str, list[dict[str, Any]]] | JSONResponse:
     try:
         user = user_service.get_user_by_api_key(api_key)
@@ -70,7 +70,7 @@ def make_transaction(
     make_transaction_request: MakeTransactionRequest,
     user_service: UserServiceDependable,
     transaction_service: TransactionServiceDependable,
-    api_key: str = Header(..., convert_underscores=False),
+    api_key: str = Header(..., convert_underscores=False, alias="X-API-KEY"),
 ) -> None | JSONResponse:
     try:
         issuer = user_service.get_user_by_api_key(api_key)
