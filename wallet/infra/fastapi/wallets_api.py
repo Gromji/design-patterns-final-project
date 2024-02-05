@@ -33,18 +33,14 @@ class WalletTransactionsResponse(BaseModel):
     transactions: list[WalletTransactionResponse]
 
 
-class WalletRequest(BaseModel):
-    api_key: str
-
-
 @wallet_api.post(path="/", status_code=201, response_model=WalletResponse)
 def create_wallet(
-    request: WalletRequest,
     wallet_service: WalletServiceDependable,
     user_service: UserServiceDependable,
+    api_key: str = Header(..., convert_underscores=False),
 ) -> dict[str, Any] | JSONResponse:
     try:
-        user = user_service.get_user_by_api_key(request.api_key)
+        user = user_service.get_user_by_api_key(api_key)
     except Exception as err:
         return JSONResponse(
             status_code=409,

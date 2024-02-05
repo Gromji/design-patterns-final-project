@@ -38,5 +38,11 @@ class TransactionRepository(ITransactionRepository):
             if wallet.address in (v.from_address, v.to_address)
         ]
 
+    def get_transaction_count(self) -> int:
+        return len(self.transactions)
+
+    def get_profit(self) -> int:
+        return sum(v.fee for v in self.transactions.values())
+
     def tear_down(self) -> None:
         self.transactions = {}

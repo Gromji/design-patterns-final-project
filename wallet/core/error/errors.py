@@ -16,3 +16,7 @@ class ConversionError(Exception):
 
 class WrongOwnerError(Exception):
     pass
+
+
+class NotEnoughBalanceError(Exception):
+    pass

@@ -5,6 +5,7 @@ from uuid import UUID
 from wallet.core.entity.transaction import Transaction
 from wallet.core.entity.user import User
 from wallet.core.entity.wallet import Wallet
+from wallet.core.error.errors import NotEnoughBalanceError
 from wallet.core.tool.generator import DefaultGenerator, IGenerator
 from wallet.core.tool.validator import DefaultValidator, IValidator
 from wallet.infra.repository.repository_interface import (
@@ -50,6 +51,7 @@ class TransactionService:
     transaction_repository: ITransactionRepository
     wallet_repository: IWalletRepository
     validator: IValidator = field(default_factory=DefaultValidator)
+    _fee: float = 0.015
 
     def get_transaction_by_id(self, transaction_id: UUID) -> Transaction:
         return self.transaction_repository.get_transaction_by_id(transaction_id)
@@ -65,16 +67,14 @@ class TransactionService:
             self.validator.validate_wallet_owner(from_wallet, sender)
         to_wallet = self.wallet_repository.get_wallet(transaction.to_address)
 
+        if from_wallet.amount < transaction.amount:
+            raise NotEnoughBalanceError("Not enough balance in the wallet.")
+
+        transaction.fee = int(transaction.amount * self._fee)
         res = self.transaction_repository.create_transaction(transaction)
 
-        from_wallet_new_amount = (
-            self.wallet_repository.get_wallet(from_wallet.address).amount
-            - transaction.amount
-        )
-        to_wallet_new_amount = (
-            self.wallet_repository.get_wallet(to_wallet.address).amount
-            + transaction.amount
-        )
+        from_wallet_new_amount = from_wallet.amount - transaction.amount
+        to_wallet_new_amount = to_wallet.amount + transaction.amount
         self.wallet_repository.update_amount(
             from_wallet.address, from_wallet_new_amount
         )
@@ -84,6 +84,12 @@ class TransactionService:
 
     def filter_transactions(self, wallet: Wallet) -> List[Transaction]:
         return self.transaction_repository.filter_transactions(wallet)
+
+    def get_transaction_count(self) -> int:
+        return self.transaction_repository.get_transaction_count()
+
+    def get_profit(self) -> int:
+        return self.transaction_repository.get_profit()
 
     def tear_down(self) -> None:
         self.transaction_repository.tear_down()
@@ -99,7 +105,6 @@ class WalletService:
     def create_wallet(self, wallet: Wallet) -> Wallet:
         if wallet.address == "":
             wallet.address = self.generator.generate_wallet_address()
-        self.validator.validate_wallet(wallet)
         return self.wallet_repository.create_wallet(wallet)
 
     def get_wallet(

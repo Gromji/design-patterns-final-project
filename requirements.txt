@@ -5,6 +5,7 @@ mypy
 pydantic
 typer
 pytest
+pytest-cov
 uvicorn
 fastapi
 starlette

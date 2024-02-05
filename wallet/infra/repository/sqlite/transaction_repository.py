@@ -48,8 +48,8 @@ class TransactionRepository(ITransactionRepository):
                     .transaction_id(transaction[0])
                     .from_address(transaction[1])
                     .to_address(transaction[1])
-                    .amount(transaction[3])
-                    .fee(transaction[4])
+                    .amount(int(transaction[3]))
+                    .fee(int(transaction[4]))
                     .build()
                 )
 
@@ -64,8 +64,8 @@ class TransactionRepository(ITransactionRepository):
                     .transaction_id(t[0])
                     .from_address(t[1])
                     .to_address(t[2])
-                    .amount(t[3])
-                    .fee(t[4])
+                    .amount(int(t[3]))
+                    .fee(int(t[4]))
                     .build()
                     for t in transactions
                 ]
@@ -101,12 +101,27 @@ class TransactionRepository(ITransactionRepository):
                     .transaction_id(t[0])
                     .from_address(t[1])
                     .to_address(t[2])
-                    .amount(t[3])
-                    .fee(t[4])
+                    .amount(int(t[3]))
+                    .fee(int(t[4]))
                     .build()
                     for t in transactions
                     if wallet.address in (t[1], t[2])
                 ]
+
+    def get_transaction_count(self) -> int:
+        with ConnectionManager.get_connection() as conn:
+            with closing(conn.cursor()) as cursor:
+                cursor.execute(f"SELECT COUNT(*) FROM {TRANSACTION_TABLE_NAME}")
+                return int(cursor.fetchone()[0])
+
+    def get_profit(self) -> int:
+        with ConnectionManager.get_connection() as conn:
+            with closing(conn.cursor()) as cursor:
+                cursor.execute(f"SELECT SUM(Fee) FROM {TRANSACTION_TABLE_NAME}")
+                fetched = cursor.fetchone()
+                if fetched[0] is None:
+                    return 0
+                return int(fetched[0])
 
     def tear_down(self) -> None:
         with ConnectionManager.get_connection() as conn:
