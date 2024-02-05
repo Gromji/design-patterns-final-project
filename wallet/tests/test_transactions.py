@@ -56,7 +56,7 @@ def test_create_transaction(service_name: str, request: pytest.FixtureRequest) -
     )
     assert (
         transaction.transaction_id
-        == service.create_transaction(transaction).transaction_id
+        == service.create_transaction(transaction, None, False).transaction_id
     )
     assert service.wallet_repository.get_wallet("address_1").amount == 50
     assert service.wallet_repository.get_wallet("address_2").amount == 250
@@ -76,7 +76,7 @@ def test_get_transaction(service_name: str, request: pytest.FixtureRequest) -> N
         .amount(50)
         .build()
     )
-    service.create_transaction(transaction)
+    service.create_transaction(transaction, None, False)
     retrieved_transaction = service.get_transaction_by_id(transaction.transaction_id)
     assert retrieved_transaction.amount == transaction.amount
     service.tear_down()
@@ -109,9 +109,9 @@ def test_already_exists_transaction(
         .amount(50)
         .build()
     )
-    service.create_transaction(transaction)
+    service.create_transaction(transaction, None, False)
     with pytest.raises(AlreadyExistsError):
-        service.create_transaction(transaction)
+        service.create_transaction(transaction, None, False)
     service.tear_down()
 
 
@@ -144,9 +144,9 @@ def test_filter_transactions(service_name: str, request: pytest.FixtureRequest) 
         .amount(50)
         .build()
     )
-    service.create_transaction(transaction_1)
-    service.create_transaction(transaction_2)
-    service.create_transaction(transaction_3)
+    service.create_transaction(transaction_1, None, False)
+    service.create_transaction(transaction_2, None, False)
+    service.create_transaction(transaction_3, None, False)
     wallet = WalletBuilder().builder().address("address_2").build()
     filtered_transactions = service.filter_transactions(wallet)
     assert len(filtered_transactions) == 2
@@ -180,8 +180,8 @@ def test_get_all_transactions(
         .amount(200)
         .build()
     )
-    service.create_transaction(transaction_1)
-    service.create_transaction(transaction_2)
+    service.create_transaction(transaction_1, None, False)
+    service.create_transaction(transaction_2, None, False)
     all_transactions = service.get_all_transactions()
     assert len(all_transactions) == 2
     service.tear_down()

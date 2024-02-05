@@ -45,17 +45,11 @@ class UserService:
         self.user_repository.tear_down()
 
 
+@dataclass
 class TransactionService:
     transaction_repository: ITransactionRepository
     wallet_repository: IWalletRepository
-
-    def __init__(
-        self,
-        transaction_repository: ITransactionRepository,
-        wallet_repository: IWalletRepository,
-    ) -> None:
-        self.transaction_repository = transaction_repository
-        self.wallet_repository = wallet_repository
+    validator: IValidator = field(default_factory=DefaultValidator)
 
     def get_transaction_by_id(self, transaction_id: UUID) -> Transaction:
         return self.transaction_repository.get_transaction_by_id(transaction_id)
@@ -63,8 +57,12 @@ class TransactionService:
     def get_all_transactions(self) -> List[Transaction]:
         return self.transaction_repository.get_all_transactions()
 
-    def create_transaction(self, transaction: Transaction) -> Transaction:
+    def create_transaction(
+        self, transaction: Transaction, sender: User, validate_sender: bool = True
+    ) -> Transaction:
         from_wallet = self.wallet_repository.get_wallet(transaction.from_address)
+        if validate_sender:
+            self.validator.validate_wallet_owner(from_wallet, sender)
         to_wallet = self.wallet_repository.get_wallet(transaction.to_address)
 
         res = self.transaction_repository.create_transaction(transaction)
