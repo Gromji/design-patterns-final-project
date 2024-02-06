@@ -6,6 +6,7 @@ from wallet.core.entity.transaction import Transaction
 from wallet.core.entity.user import User
 from wallet.core.entity.wallet import Wallet
 from wallet.core.error.errors import NotEnoughBalanceError
+from wallet.core.tool.calculator import FeeCalculator
 from wallet.core.tool.generator import DefaultGenerator, IGenerator
 from wallet.core.tool.validator import DefaultValidator, IValidator
 from wallet.infra.repository.repository_interface import (
@@ -50,7 +51,6 @@ class TransactionService:
     transaction_repository: ITransactionRepository
     wallet_repository: IWalletRepository
     validator: IValidator = field(default_factory=DefaultValidator)
-    _fee: float = 0.015
 
     def get_transaction_by_id(self, transaction_id: UUID) -> Transaction:
         return self.transaction_repository.get_transaction_by_id(transaction_id)
@@ -66,7 +66,7 @@ class TransactionService:
             self.validator.validate_wallet_owner(from_wallet, sender)
         to_wallet = self.wallet_repository.get_wallet(transaction.to_address)
 
-        fee = max(int(transaction.amount * self._fee), 1)
+        fee = FeeCalculator.calculate_fee(transaction.amount)
 
         if from_wallet.amount < transaction.amount + fee:
             raise NotEnoughBalanceError("Not enough balance in the wallet.")
