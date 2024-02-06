@@ -42,6 +42,12 @@ class ITransactionRepository(Protocol):
     def filter_transactions(self, wallet: Wallet) -> List[Transaction]:
         pass
 
+    def get_transaction_count(self) -> int:
+        pass
+
+    def get_profit(self) -> int:
+        pass
+
     def tear_down(self) -> None:
         pass
 

@@ -15,9 +15,7 @@ class ConnectionManager:
             ConnectionManager.connections.append(
                 sqlite3.connect(DATABASE_NAME, check_same_thread=False)
                 if not ConnectionManager.in_mem
-                else sqlite3.connect(
-                    "file::memory:?cache=shared", check_same_thread=False
-                )
+                else sqlite3.connect(":memory:", check_same_thread=False)
             )
         conn = ConnectionManager.connections[0]
         cursor = conn.cursor()

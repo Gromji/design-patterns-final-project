@@ -8,7 +8,7 @@ from wallet.infra.repository.memory.user_repository import (
 )
 from wallet.infra.repository.sqlite.connection_manager import ConnectionManager
 from wallet.infra.repository.sqlite.user_repository import (
-    UserRepository as PostgresUserRepository,
+    UserRepository as SQLiteUserRepository,
 )
 
 
@@ -20,7 +20,7 @@ def service_in_mem_dict() -> UserService:
 @pytest.fixture
 def service_in_mem_sqlite() -> UserService:
     ConnectionManager.set_in_mem(True)
-    return UserService(PostgresUserRepository())
+    return UserService(SQLiteUserRepository())
 
 
 @pytest.mark.parametrize(

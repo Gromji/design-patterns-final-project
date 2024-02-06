@@ -9,7 +9,7 @@ from wallet.infra.repository.memory.wallet_repository import (
 )
 from wallet.infra.repository.sqlite.connection_manager import ConnectionManager
 from wallet.infra.repository.sqlite.wallet_repository import (
-    WalletRepository as SqliteWalletRepository,
+    WalletRepository as SQLiteWalletRepository,
 )
 
 
@@ -22,7 +22,7 @@ def service_in_mem_dict() -> WalletService:
 def service_in_mem_sqlite() -> WalletService:
     ConnectionManager.set_in_mem(True)
     ConnectionManager.set_foreign_keys(False)
-    return WalletService(SqliteWalletRepository())
+    return WalletService(SQLiteWalletRepository())
 
 
 @pytest.mark.parametrize(
