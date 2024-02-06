@@ -31,8 +31,7 @@ class UserService:
         return self.user_repository.get_user_by_api_key(api_key)
 
     def create_user(self, user: User) -> User:
-        if user.api_key == "":
-            user.api_key = self.generator.generate_api_key()
+        user.api_key = user.api_key or self.generator.generate_api_key()
         self.validator.validate_user(user)
         return self.user_repository.create_user(user)
 
@@ -67,20 +66,24 @@ class TransactionService:
             self.validator.validate_wallet_owner(from_wallet, sender)
         to_wallet = self.wallet_repository.get_wallet(transaction.to_address)
 
-        if from_wallet.amount < transaction.amount:
+        fee = max(int(transaction.amount * self._fee), 1)
+
+        if from_wallet.amount < transaction.amount + fee:
             raise NotEnoughBalanceError("Not enough balance in the wallet.")
 
-        transaction.fee = int(transaction.amount * self._fee)
-        res = self.transaction_repository.create_transaction(transaction)
+        transaction.fee = fee
+        tx = self.transaction_repository.create_transaction(transaction)
 
-        from_wallet_new_amount = from_wallet.amount - transaction.amount
-        to_wallet_new_amount = to_wallet.amount + transaction.amount
+        from_wallet_new_amount, to_wallet_new_amount = (
+            from_wallet.amount - transaction.amount,
+            to_wallet.amount + transaction.amount,
+        )
         self.wallet_repository.update_amount(
             from_wallet.address, from_wallet_new_amount
         )
         self.wallet_repository.update_amount(to_wallet.address, to_wallet_new_amount)
 
-        return res
+        return tx
 
     def filter_transactions(self, wallet: Wallet) -> List[Transaction]:
         return self.transaction_repository.filter_transactions(wallet)
@@ -103,8 +106,7 @@ class WalletService:
     validator: IValidator = field(default_factory=DefaultValidator)
 
     def create_wallet(self, wallet: Wallet) -> Wallet:
-        if wallet.address == "":
-            wallet.address = self.generator.generate_wallet_address()
+        wallet.address = wallet.address or self.generator.generate_wallet_address()
         return self.wallet_repository.create_wallet(wallet)
 
     def get_wallet(

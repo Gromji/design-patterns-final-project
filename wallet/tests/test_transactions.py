@@ -109,7 +109,7 @@ def test_already_exists_transaction(
         .builder()
         .from_address("address_1")
         .to_address("address_2")
-        .amount(50)
+        .amount(20)
         .build()
     )
     service.create_transaction(transaction, None, False)
@@ -213,7 +213,7 @@ def test_get_profit(service_name: str, request: pytest.FixtureRequest) -> None:
     )
     service.create_transaction(transaction_1, None, False)
     service.create_transaction(transaction_2, None, False)
-    assert service.get_profit() == int((50 + 200) * 0.015)
+    assert service.get_profit() == max((50 * 0.015), 1) + max(200 * 0.015, 1)
     service.tear_down()
 
 

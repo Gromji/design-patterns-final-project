@@ -9,10 +9,12 @@ DEFAULT_WALLET_BALANCE = BTC_TO_SATOSHI
 
 
 class IConverter(Protocol):
-    def btc_to_usd(self, value: float) -> float:
+    @staticmethod
+    def btc_to_usd(value: float) -> float:
         pass
 
-    def satoshi_to_usd(self, value: int) -> float:
+    @staticmethod
+    def satoshi_to_usd(value: int) -> float:
         pass
 
     @staticmethod
@@ -25,18 +27,17 @@ class IConverter(Protocol):
 
 
 class Converter(IConverter):
-    def __init__(self, url: str = "https://blockchain.info"):
-        self.url = url
-
-    def btc_to_usd(self, value: float) -> float:
-        response: requests.Response = requests.get(f"{self.url}/ticker")
+    @staticmethod
+    def btc_to_usd(value: float, url: str = "https://blockchain.info") -> float:
+        response: requests.Response = requests.get(f"{url}/ticker")
         if response.status_code == 200:
             return value * float(response.json()["USD"]["last"])
 
         raise ConversionError("Error when trying to convert BTC to USD")
 
-    def satoshi_to_usd(self, value: int) -> float:
-        return self.btc_to_usd(self.satoshi_to_btc(value))
+    @staticmethod
+    def satoshi_to_usd(value: int) -> float:
+        return Converter.btc_to_usd(Converter.satoshi_to_btc(value))
 
     @staticmethod
     def btc_to_satoshi(value: float) -> int:

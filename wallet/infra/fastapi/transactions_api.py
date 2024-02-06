@@ -42,9 +42,11 @@ def list_transactions(
     try:
         user = user_service.get_user_by_api_key(api_key)
         wallets = wallet_service.get_user_wallets(user)
-        transactions = []
-        for wallet in wallets:
-            transactions += transaction_service.filter_transactions(wallet)
+        transactions = [
+            transaction
+            for wallet in wallets
+            for transaction in transaction_service.filter_transactions(wallet)
+        ]
 
         response = [
             {
